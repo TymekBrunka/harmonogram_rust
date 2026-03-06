@@ -1,0 +1,15 @@
+[package]
+name = "harmonogram_rust"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# iced = { version = "0.8.0", default-features = false, features = [
+#   "glow",
+#   "image",
+# ]}
+iced = { version = "0.14.0", default-features = false, features = [
+  "tiny-skia",
+  "image",
+  "thread-pool"
+]}
