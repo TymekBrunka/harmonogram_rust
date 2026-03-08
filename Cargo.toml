@@ -11,5 +11,7 @@ edition = "2024"
 iced = { version = "0.14.0", default-features = false, features = [
   "tiny-skia",
   "image",
-  "thread-pool"
+  "thread-pool",
+  "x11",
+  "wayland"
 ]}

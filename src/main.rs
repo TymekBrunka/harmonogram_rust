@@ -1,67 +1,55 @@
-use iced::Center;
-use iced::widget::{Column, button, column, text};
+use iced::widget::{button, column, container, text};
+use iced::{Center, Element, Size, Subscription, window};
 
 pub fn main() -> iced::Result {
-    iced::run(Counter::update, Counter::view)
+    iced::application(App::default, App::update, App::view)
+        .subscription(App::subscription)
+        .run()
 }
 
 #[derive(Default)]
-struct Counter {
+struct App {
     value: i64,
+}
+
+static mut WINDOW_SIZE : Size = Size { width: 0.0, height: 0.0 };
+
+fn get_window_size() -> Size {
+    unsafe {return WINDOW_SIZE; }
 }
 
 #[derive(Debug, Clone, Copy)]
 enum Message {
-    Increment,
-    Decrement,
+    No,
+    Resized
 }
 
-impl Counter {
+impl App {
     fn update(&mut self, message: Message) {
         match message {
-            Message::Increment => {
-                self.value += 1;
-            }
-            Message::Decrement => {
-                self.value -= 1;
-            }
+            _ => {}
         }
     }
 
-    fn view(&self) -> Column<'_, Message> {
-        column![
-            button("Increment").on_press(Message::Increment),
-            text(self.value).size(50),
-            button("Decrement").on_press(Message::Decrement)
-        ]
-        .padding(20)
-        .align_x(Center)
+    fn view(&self) -> Element<'_, Message> {
+        container(
+            column![
+                button("Increment").on_press(Message::No),
+                text(self.value).size(50),
+                button("Decrement").on_press(Message::No)
+            ]
+            .padding(20)
+            .align_x(Center),
+        )
+            .width(get_window_size().width)
+            .height(get_window_size().height)
+            .into()
     }
-}
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use iced_test::{Error, simulator};
-
-    #[test]
-    fn it_counts() -> Result<(), Error> {
-        let mut counter = Counter { value: 0 };
-        let mut ui = simulator(counter.view());
-
-        let _ = ui.click("Increment")?;
-        let _ = ui.click("Increment")?;
-        let _ = ui.click("Decrement")?;
-
-        for message in ui.into_messages() {
-            counter.update(message);
-        }
-
-        assert_eq!(counter.value, 1);
-
-        let mut ui = simulator(counter.view());
-        assert!(ui.find("1").is_ok(), "Counter should display 1!");
-
-        Ok(())
+    fn subscription(&self) -> Subscription<Message> {
+        window::resize_events().filter_map(|event| {
+            unsafe { WINDOW_SIZE = event.1; }
+            return Some(Message::Resized);
+        })
     }
 }
