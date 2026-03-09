@@ -13,19 +13,10 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +7 ~/Documents/kody/harmonogram-rust/Cargo.toml
-badd +1 ~/Documents/kody/harmonogram-rust/src/iced_minimal_example.rs
-badd +1 ~/Documents/kody/harmonogram-rust/src/iced_panes.rs
-badd +37 ~/Documents/kody/harmonogram-rust/src/main.rs
-badd +13 ~/Documents/kody/harmonogram_rust/Cargo.toml
-badd +40 ~/Documents/kody/harmonogram_rust/src/main.rs
 argglobal
 %argdel
-tabnew +setlocal\ bufhidden=wipe
-tabrewind
-edit ~/Documents/kody/harmonogram_rust/src/main.rs
 argglobal
-balt ~/Documents/kody/harmonogram_rust/Cargo.toml
+enew
 setlocal foldmethod=manual
 setlocal foldexpr=0
 setlocal foldmarker={{{,}}}
@@ -34,34 +25,6 @@ setlocal foldlevel=0
 setlocal foldminlines=1
 setlocal foldnestmax=20
 setlocal foldenable
-silent! normal! zE
-let &fdl = &fdl
-let s:l = 31 - ((28 * winheight(0) + 26) / 53)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 31
-normal! 026|
-tabnext
-edit ~/Documents/kody/harmonogram-rust/Cargo.toml
-argglobal
-balt ~/Documents/kody/harmonogram-rust/src/iced_minimal_example.rs
-setlocal foldmethod=manual
-setlocal foldexpr=0
-setlocal foldmarker={{{,}}}
-setlocal foldignore=#
-setlocal foldlevel=0
-setlocal foldminlines=1
-setlocal foldnestmax=20
-setlocal foldenable
-silent! normal! zE
-let &fdl = &fdl
-let s:l = 1 - ((0 * winheight(0) + 26) / 53)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 1
-normal! 0
 tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0 && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf

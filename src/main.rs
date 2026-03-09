@@ -1,9 +1,18 @@
-use iced::widget::{button, column, container, text};
-use iced::{Center, Element, Size, Subscription, window};
+use iced::widget::{button, container, row, space};
+use iced::{Element, Subscription, Theme, color, window};
+
+mod widgets;
+use widgets::*;
 
 pub fn main() -> iced::Result {
+    // DIMMED_THEME.get_or_init(|| {
+    //     // let mut p: Palette = Theme::Dark.palette();
+    //     // return Theme::custom("dimmed", p);
+    //     Theme::Dark
+    // });
     iced::application(App::default, App::update, App::view)
         .subscription(App::subscription)
+        .theme(Theme::Nord)
         .run()
 }
 
@@ -12,16 +21,10 @@ struct App {
     value: i64,
 }
 
-static mut WINDOW_SIZE : Size = Size { width: 0.0, height: 0.0 };
-
-fn get_window_size() -> Size {
-    unsafe {return WINDOW_SIZE; }
-}
-
 #[derive(Debug, Clone, Copy)]
 enum Message {
     No,
-    Resized
+    Resized,
 }
 
 impl App {
@@ -33,22 +36,24 @@ impl App {
 
     fn view(&self) -> Element<'_, Message> {
         container(
-            column![
-                button("Increment").on_press(Message::No),
-                text(self.value).size(50),
-                button("Decrement").on_press(Message::No)
-            ]
-            .padding(20)
-            .align_x(Center),
+            menu_bar!(
+                row![
+                    space().width(10),
+                    menu_button!("Załaduj").on_press(Message::No),
+                    menu_button!("Zapisz").on_press(Message::No),
+                ]
+            )
         )
-            .width(get_window_size().width)
-            .height(get_window_size().height)
-            .into()
+        .width(get_window_size().width)
+        .height(get_window_size().height)
+        .into()
     }
 
     fn subscription(&self) -> Subscription<Message> {
         window::resize_events().filter_map(|event| {
-            unsafe { WINDOW_SIZE = event.1; }
+            unsafe {
+                WINDOW_SIZE = event.1;
+            }
             return Some(Message::Resized);
         })
     }
