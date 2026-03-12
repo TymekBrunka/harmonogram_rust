@@ -39,3 +39,16 @@ macro_rules! menu_bar {
         .width(get_window_size().width)// .center_x(Fill),
     };
 }
+
+#[macro_export]
+macro_rules! colored_box {
+    ($contents:expr, $color:expr) => {
+        iced::widget::container(
+            $contents
+        )
+        .style(|_| iced::widget::container::Style {
+            background: Some($color.into()),
+            ..Default::default()
+        })
+    };
+}

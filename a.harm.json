@@ -1,0 +1,28 @@
+{
+  "2025-12-09": {
+    "zmiana1" : [
+      ["cos", true, "chyba jednak nie"],
+      ["tam", true, "chyba jednak nie"]
+    ],
+    "zmiana2" : [
+      ["cos", true, "chyba jednak nie"],
+      ["tam", true, "chyba jednak nie"]
+    ],
+    "awarie": [
+      "pekniecie rury odplywowej w lazience"
+    ]
+  },
+  "2026-03-10": {
+    "zmiana1" : [
+      ["cos", true, "chyba jednak nie"],
+      ["tam", true, "chyba jednak nie"]
+    ],
+    "zmiana2" : [
+      ["cos", true, "chyba jednak nie"],
+      ["tam", true, "chyba jednak nie"]
+    ],
+    "awarie": [
+      "pekniecie rury odplywowej w lazience"
+    ]
+  }
+}
