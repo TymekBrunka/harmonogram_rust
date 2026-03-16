@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 use std::fs;
-use std::rc::Weak;
+use std::sync::Arc;
 
-use iced::futures::future::WeakShared;
-use iced::widget::{Column, button, container, keyed_column, row, space};
+use iced::alignment::Vertical;
+use iced::widget::{Column, button, container, keyed_column, row, scrollable, space, checkbox};
 use iced::{Element, Subscription, Theme, window};
 use json;
 use rfd::FileDialog;
@@ -36,9 +36,9 @@ struct Wpis {
 }
 
 #[derive(Default)]
-struct App<'a> {
-    entries: HashMap<String, Wpis>,
-    selected_index: Option<&'a mut Wpis>
+struct App {
+    entries: HashMap<String, Arc<Wpis>>,
+    selected_index: Option<Arc<Wpis>>,
 }
 
 #[derive(Debug, Clone)]
@@ -46,10 +46,11 @@ enum Message {
     No,
     Load,
     Resized,
-    Selected(String)
+    Selected(String),
+    ToggledTodoItem(usize),
 }
 
-impl<'a> App<'_> {
+impl App {
     fn update(&mut self, message: Message) {
         match message {
             Message::Load => {
@@ -66,7 +67,7 @@ impl<'a> App<'_> {
                         return;
                     }
 
-                    let mut entries = HashMap::<String, Wpis>::new();
+                    let mut entries = HashMap::<String, Arc<Wpis>>::new();
                     let parsed = parsed.unwrap();
                     for (key, value) in parsed.entries() {
                         // println!("{:#?}", i);
@@ -101,7 +102,7 @@ impl<'a> App<'_> {
                         }
 
                         if value.has_key("zmiana2") {
-                            if let json::JsonValue::Array(zmiana1) = &value["zmiana1"] {
+                            if let json::JsonValue::Array(zmiana1) = &value["zmiana2"] {
                                 for v in zmiana1 {
                                     let mut item = TodoItem {
                                         zadanie: "".to_owned(),
@@ -129,13 +130,13 @@ impl<'a> App<'_> {
                                 entry.awarie = String::from(val);
                             }
                         }
-                        entries.insert(key.to_string(), entry);
+                        entries.insert(key.to_string(), Arc::new(entry));
                     }
                     self.entries = entries;
                 }
-            },
+            }
             Message::Selected(sidx) => {
-                self.selected_index = Some(self.entries.get_mut(&sidx).unwrap());
+                self.selected_index = Some(self.entries.get_mut(&sidx).unwrap().clone());
             }
             _ => {}
         }
@@ -156,11 +157,13 @@ impl<'a> App<'_> {
                 // colored_box!(row![], color!(0xadb34))
                 row![
                     container(
-                        container({
+                        container(scrollable({
                             let mut items = Vec::<Element<'_, _, _, _>>::new();
                             for (k, _) in &self.entries {
-                                let item =
-                                    button(k.as_str()).on_press(Message::Selected(k.clone())).width(140).into();
+                                let item = button(k.as_str())
+                                    .on_press(Message::Selected(k.clone()))
+                                    .width(140)
+                                    .into();
                                 items.push(item);
                             }
                             Column::with_children(items)
@@ -168,20 +171,49 @@ impl<'a> App<'_> {
                                 .clip(true)
                                 .spacing(5)
                                 .padding(5)
-                        })
+                        }))
                         .height(get_window_size().height - 57.0)
                         .style(container::bordered_box)
                     )
                     .padding(10),
-                    container(
-                        container("hello")
-                            .style(container::bordered_box)
-                            .width(100)
-                            .height(100)
-                    )
-                    .width(get_window_size().width - 180.0)
-                    .center_x(get_window_size().width - (170.0 * 2.0) - 5.0)
-                    .center_y(get_window_size().height - 52.0)
+                    {
+                        if let Some(selected_index) = &self.selected_index {
+                            container(
+                                container(keyed_column![
+                                    (0, {
+                                        let mut items = Vec::<Element<'_, _, _, _>>::new();
+                                        for i in &selected_index.zmiana1 {
+                                            let item = row![
+                                                checkbox(i.wykonano).label(i.zadanie.as_str()).on_toggle(|_| {Message::No}),
+                                            ]
+                                            .align_y(Vertical::Center)
+                                            .into();
+                                            items.push(item);
+                                        }
+                                        Column::with_children(items).spacing(5).padding(5)
+                                    }),
+                                    (1, {
+                                        let mut items = Vec::<Element<'_, _, _, _>>::new();
+                                        for i in &selected_index.zmiana2 {
+                                            let item = row![
+                                                checkbox(i.wykonano).label(i.zadanie.as_str()).on_toggle(|_| {Message::No}),
+                                            ]
+                                            .align_y(Vertical::Center)
+                                            .into();
+                                            items.push(item);
+                                        }
+                                        Column::with_children(items).spacing(5).padding(5)
+                                    })
+                                ])
+                                .style(container::bordered_box),
+                            )
+                            .width(get_window_size().width - 180.0)
+                            .center_x(get_window_size().width - (170.0 * 2.0) - 5.0)
+                            .center_y(get_window_size().height - 52.0)
+                        } else {
+                            container("")
+                        }
+                    }
                 ]
             )
         ])
